@@ -1,0 +1,397 @@
+\chapter{Escenarios, clases e obxectos}
+Un mundo de xogo de Demiurgo está composto por obxectos, cada un dos cales
+segue a definición dunha clase e atópase dentro dun escenario. A medida que
+a partida avanza, os distintos obxectos créanse, modifícanse, móvense dun
+escenario a outro e interactúan entre eles.
+\section{Exemplo dunha situación}
+Expresaremos unha situación normal do xogo mediante este exemplo:
+\par
+{\it A situación transcorre na taberna da capital do reino. Tres ananos están
+nun recuncho discutindo entre eles acaloradamente. Detrás da barra pódese ver ao
+taberneiro, un home corpulento que se distrae limpando un vaso. Detrás da barra
+ten un mosquetón agochado por se as cousas se poñen feas, e por se acaso non
+lle quita ollo aos ananos.}
+\par
+En base a esta descrición da situación, o director de xogo pode definir
+internamente o seguinte:
+\begin{itemize}
+  \item Un escenario que se corresponde coa {\bf taberna}. O escenario debería
+  ter un nome recoñecible para o director de xogo, como por exemplo {\it
+  /reino/capital/taberna}, máis iso explicarase máis en detalle
+  en \ref{subsec:nome-escenarios}.
+  \item Como mínimo {\bf 5 obxectos}: \begin{itemize}
+    \item Tres obxectos que representen aos {\bf ananos}. Xa que son tres
+    obxectos moi semellantes, o normal é que pertenzan á mesma clase; por
+    exemplo, unha clase chamada {\it Anano}. Máis isto non é unha norma,
+    dependerá de como o director de xogo teña definido o mundo.
+    \item Un obxecto que represente ao {\bf taberneiro}. Pode pertencer a unha
+    clase diferenciada da dos ananos (como {\it Humano}); non obstante, ben poden
+    pertencer tanto o taberneiro como os ananos a unha mesma clase {\it
+    Intelixente} ou {\it Criatura}, por exemplo.
+    \item Un obxecto que faga referencia á {\bf barra}, xa que o {\bf mosquetón}
+    que contén é pode resultar relevante no futuro. Por tanto, o normal sería  que
+    houbese un obxecto que representase á barra (de clase {\it Mobiliario} por
+    exemplo), e no seu interior se atopase un inventario que conteña ao obxecto
+    mosquetón (de clase {\it Mosquetón}). Explicarase con detalle o concepto dos
+    inventarios en \ref{subsubsec:inventarios}.
+  \end{itemize}
+\end{itemize}
+\par
+Esta configuración é un simple exemplo que non ten por que cumprirse ao
+100\% nunha partida real, pero da unha idea do concepto. Poñamos agora outro
+exemplo: na mesma situación, comezan a suceder cousas.
+\par
+{\it Parece que a discusión dos ananos chega a un punto crítico. Dous deles
+deciden simultaneamente que non poderán resolver as súas diferencias mediante a
+diplomacia, polo que deciden sacar os puños e golpearse mutuamente. O
+taberneiro, que non lles quitaba ollo, saca o mosquetón como resposta por se
+comeza unha escalada de violencia.}
+\par
+Isto pode suceder por dous motivos: os dous ananos son personaxes
+controlados por xogadores e ambos tomaron a mesma decisión (golpear ao outro) ao
+mesmo tempo; ou ben son personaxes non xogadores ({\it NPC}, {\it non player
+character}) e foi o propio DX o que tomou a decisión por eles (para que outros
+xogadores no escenario presenciaran isto, por exemplo).
+\par
+En calquera caso, o que lle corresponde ao DX é executar o código necesario para
+cambiar o estado do mundo. O código a redactar debe facer tres cousas:
+\begin{enumerate}
+  \item Un dos ananos debe {\bf golpear} ao outro, cos cambios que iso implique
+  (por exemplo, reducir o seu campo {\it vida}).
+  \item O segundo anano debe {\bf golpear} ao primeiro.
+  \item O mosquetón debe deixar de estar no inventario da barra e debe
+  {\bf moverse} ao inventario do taberneiro.
+\end{enumerate}
+\par
+Este sería un exemplo de como podería ser este código:
+\begin{lstlisting}
+anano1.golpear(anano2)
+anano2.golpear(anano1)
+barra.contidos[0] >> taberneiro.inventario
+\end{lstlisting}
+\par
+Como entendemos este código? Temos unha variable anano1 que fai referencia ao
+obxecto {\it Anano} que da o primeiro golpe, unha variable anano2 que fai
+referencia ao segundo, unha variable {\it barra}, unha variable {\it
+taberneiro}, e un método {\it golpear()} definido para a clase {\it Anano}. Este
+código enténdese así:
+\begin{enumerate}
+  \item O obxecto correspondente á variable anano1 executa o {\bf método}
+  {\it golpear()}, collendo o obxecto da variable anano2 como argumento. Este
+  método, definido na clase {\it Anano}, reduce a vida do anano seleccionado
+  como argumento. Explicarase máis en detalle isto na sección
+  \ref{subsec:metodos}.
+  \item O mesmo que no anterior, pero ao revés.
+  \item O primeiro obxecto ({\it [0]}) dos contidos da barra (''contidos'' é un
+  inventario da clase {\it Mobiliario}), que neste caso entendemos que é o
+  mosquetón, {\bf móvese} (>>) ao inventario do taberneiro. 
+\end{enumerate}
+
+\section{Escenarios}
+\subsection{Definición de escenario}
+O mundo de xogo está dividido en escenarios (tamén chamados {\it habitacións}
+polo seu homólogo {\it rooms} en inglés). Cada escenario está composto por:
+\begin{itemize}
+  \item O seu nome, sobre o cal falaremos en \ref{subsec:nome-escenarios}.
+  \item O conxunto de obxectos que se atopan ''dentro'' do escenario.
+  \item As variables do escenario, as cales poden conter datos tales como
+  números enteiros ou texto, pero tamén referencias a obxectos ou outros
+  escenarios.
+\end{itemize}
+\par
+O escenario forma unha unidade lóxica fundamental no mundo de xogo, e o habitual
+é que as accións en cada escenario afecten só aos obxectos do propio escenario
+(aínda que pode haber excepcións).
+
+\subsection{Nome do escenario}
+\label{subsec:nome-escenarios}
+O nome de escenario serve para que o DX o identifique rapidamente. Ademais de
+ofrecer un nome descritivo, o nome completo permite organizar os escenarios
+nunha estrutura xerárquica, cunha lóxica semellante á das rutas de ficheiros nos
+sistemas operativos.
+\par
+Exemplo:
+\begin{lstlisting}
+/continente/reinohumano/cidadecapital/armeria
+/continente/reinohumano/cidadecapital/taberna
+/continente/reinohumano/aldeacosteira
+\end{lstlisting}
+\par
+Estes tres escenarios atópanse dentro de /continente/reinohumano, é dicir,
+na estrutura lóxica do mundo de xogo están dentro do mesmo reino, o cal forma
+parte do continente. A maiores, os dous primeiros están na mesma cidade. Estes
+compoñentes normalmente reciben o nome de {\it rexións}, pero poden ter o
+significado semántico que o DX de xogo prefira, por exemplo, nunha partida
+futurista poderíamos atopar algo como:
+\begin{lstlisting}
+/planetamarte/coloniahumana/suburbios/casa3/cocinha
+/planetamarte/orbita/sateliteflotante/laboratorio
+/espazoexterior/zonadeasteroides
+\end{lstlisting}
+\par
+Por último, o DX pode renunciar completamente a usar a xerarquía de escenarios,
+aínda que iso pode dificultar o nomeado de escenarios:
+\begin{lstlisting}
+/chairas_da_capital_humana
+/sala_do_gran_mago
+\end{lstlisting}
+\par
+É importante ter en conta que o nome dos escenarios só pode estar composto por
+caracteres alfanuméricos e barras baixas, e non pode conter letras que non
+formen parte do alfabeto inglés (tales como {\it ñ} ou {\it ç}). O nome completo
+sempre debe comezar por /. Por último, o Demiurgo non distingue entre
+minúsculas e maiúsulas.
+\par
+Nota: {\it /} en si mesmo pode ser un escenario, o coñecido como {\it escenario
+raíz}, pero non é habitual o seu uso.
+
+\subsection{Contido do escenario}
+O escenario pode conter obxectos (e de feito é habitual que os conteña). Estes
+obxectos á súa vez poden dispoñer de inventarios (ver \ref{subsubsec:inventarios})
+que conteñan outros obxectos. Mediante a interface gráfica, o DX pode ver os
+distintos obxectos do escenario para operar con eles no código.
+
+\subsection{Variables}
+O DX pode definir variables no escenario a través do código. Estas variables
+están accesibles dende o propio escenario e poden ter todo tipo de utilidades.
+Por exemplo, é habitual referenciar os obxectos do escenario en variables para
+poder manexalos co código máis facilidade.
+\par
+Exemplo: Imaxinemos que no escenario temos un obxecto que representa a un
+trasno. O obxecto ten un identificador propio ({\it ID}) que é \#1234 (ver
+\ref{sec:obxectos}).
+No momento de querer actuar, se non empregamos variables precisamos referirnos a
+el co seu ID:
+\begin{lstlisting}
+#1234.facerTrasnadas()
+if(#1234.famento == true)
+  ! "O trasno ten bastante fame"
+\end{lstlisting}
+\par
+En cambio, se temos unha variable cun nome descritivo (por exemplo, {\it
+trasno}) podemos codificalo así:
+\begin{lstlisting}
+trasno.facerTrasnadas()
+if(trasno.famento == true)
+  ! "O trasno ten bastante fame"
+\end{lstlisting}
+\par
+Outro uso frecuente das variables é gardar datos. Neste exemplo tírase un dado
+de 20 caras e móstrase un texto ou outro segundo o resultado:
+\begin{lstlisting}
+int resultado = d20
+if(resultado > 10) {
+  ! "A accion tivo exito"
+}
+if(resultado < 3) {
+  ! "A accion foi un fracaso absoluto"
+}
+\end{lstlisting}
+
+
+
+\section{Clases}
+\label{sec:clases}
+As clases son definicións empregadas a modo de modelo para crear obxectos. Todos
+os obxectos que teñan a mesma clase terán unha serie de métodos e campos
+comúns definidos na propia clase.
+\par
+Nesta sección explicarase como funcionan as clases e todo o relacionado con
+elas. No capítulo \ref{ch:definicion} explícase polo miúdo a sintaxe formal para
+crear clases.
+\subsection{campos}
+Os campos son variables vinculadas aos obxectos, e a súa finalidade é
+almacenar datos relacionados con eles. Por exemplo, nun mundo de rol de fantasía
+medieval, é habitual atopar nos personaxes campos como forza, axilidade ou
+intelixencia. Nun mundo con máquinas de guerra, normalmente atoparemos campos
+como a potencia de disparo ou o blindaxe. E tamén podemos atopar campos en
+obxectos inanimados, como o peso, o prezo, a cor, etcéra.
+\par
+Os campos defínense coa clase, e cando é creado un obxecto desa clase,
+automaticamente pasa a posuír todos os campos da mesma.
+\par
+Exemplo:
+\begin{lstlisting}
+elfo {
+  int forza = 1
+  int axilidade = 3
+  int constitucion = 1
+  int intelixencia = 2
+  int vida
+}
+\end{lstlisting}
+\par No exemplo vemos a definición dunha clase chamada {\it Elfo}. Como vemos,
+os elfos teñen os campos forza, axilidade, constitución, intelixencia e vida,
+os cales son números enteiros {\it int} e teñen asignados uns valores por
+defecto (excepto o último).
+Cando se crean obxectos da clase {\it Elfo} automaticamente xorden con eses
+campos, pero poden ser modificados posteriormente.
+
+\subsection{Métodos}
+\label{subsec:metodos}
+Cada clase pode ter definidos unha serie de métodos. Os métodos son fragmentos
+de código relacionados coa clase que poden ser invocados en calquera momento do
+xogo, útiles para simplificar procesos repetitivos.
+\par Por exemplo:
+\begin{lstlisting}
+elfo {
+  bendicir(elfo outro) {
+    outro.vida = outro.vida + 5
+    ! "O elfo foi bendecido"
+  }
+}
+\end{lstlisting}
+\par No exemplo, a clase {\it Elfo} dispón dun método {\it bendicir()} que recibe
+como argumento un obxecto {\it Elfo} (outro elfo ou el mesmo!) e aumenta a súa
+vida en 5. Deste modo, o DX non precisa escribir ese código cada vez que queira
+facer , e pode invocalo do seguinte xeito:
+\begin{lstlisting}
+elfo1.bendicir(elfo2)
+\end{lstlisting}
+\subsubsection{Argumentos}
+Vimos no exemplo do método {\it bendicir()} que o código fai referencia a unha
+variable chamada {\it outro}. Isto é porque o ámbito dun método está reducido ao
+obxecto que o invoca e aos argumentos que recibe; isto é, non pode acceder ás
+variables do escenario.
+\par
+Cada método pode ter definidos un número indeterminado de argumentos de entrada,
+e un argumento de saída (ou ningún). Todos estes argumentos deben especificar o
+tipo, sexa un tipo primitivo como número enteiro ou texto, ou a clase se se
+trata dun obxecto. Se a chamada do método se realiza con argumentos incorrectos
+(por exemplo, enviando un obxecto dunha clase incorrecta, ou enviando un texto
+cando require un número) o Demiurgo devolverá un erro.
+\par
+Dixemos que no ámbito dos métodos tamén está o obxecto que o invoca. Isto
+faise mediante a variable {\it this}:
+\begin{lstlisting}
+elfo {
+  ceder_vida(elfo outro) {
+    outro.vida = outro.vida + 5
+    this.vida = this.vida - 5
+  }
+}
+\end{lstlisting}
+\par
+Os argumentos sempre teñen prioridade sobre os campos do obxecto en caso de que
+os nomes coincidan; debido a isto, o uso de {\it this} é necesario para
+referirse aos campos do obxecto cando isto suceda.
+
+\subsubsection{Construtor}
+\label{subsubsec:construtor}
+Por último, hai un método especial moi importante chamado {\bf construtor}, que
+se executa automaticamente no momento de crear o obxecto. É útil por tanto para
+inicializar clases. O construtor recoñécese polo feito de chamarse igual ca
+clase. No caso de ter argumentos, é necesario especificalos na creación do
+obxecto:
+\begin{lstlisting}
+elfo {
+  int idade
+  str nome
+  elfo(int novaidade, str novonome) {
+    this.idade = novaidade
+    this.nome = novonome
+  }
+}
+\end{lstlisting}
+\par E no momento de crealo:
+\begin{lstlisting}
+elfo legolas = new elfo(100, "Legolas o elfo")
+\end{lstlisting}
+
+\subsection{Herdanza de clases}
+Un aspecto fundamental das clases é a herdanza das mesmas. Unha clase pode
+especificarse como herdeira ou filla doutra clase, e deste modo herdará todos os
+campos e métodos da clase pai. Esta característica, propia das linguaxes
+orientadas a obxectos, permite aforrar moito traballo:
+\begin{lstlisting}
+animal {
+  int altura
+  str cor
+  int peso
+  str ruido
+  
+  facerRuido() {
+  ! "este animal fai " + ruido
+  }
+}
+
+can : animal {
+  str tipoPelo
+  str raza
+  
+  can() {
+    ruido = "guau"
+  }
+}
+\end{lstlisting}
+\par
+Outra utilidade da herdanza é que podemos gardar un obxecto da clase filla nunha
+variable da clase pai. Por exemplo:
+\begin{lstlisting}
+personaxe {
+  int vida = 10
+}
+
+guerreiro : personaxe {
+  int ataque = 5
+  int vida = 20
+  atacar(personaxe outro) {
+    outro.vida = outro.vida - ataque 
+  }
+}
+\end{lstlisting}
+\par Neste exemplo, o método {\it atacar()} pode recibir un personaxe como
+argumento, ou calquera obxecto dunha clase filla (como outro guerreiro).
+
+\subsubsection{Clase Object}
+Realmente todas as clases herdan dalgunha outra clase. Se a clase pai non é
+definida, esta será automaticamente a clase {\it Object}, unha clase auxiliar
+que non conta con campos. É posible crear obxectos da clase Object
+directamente, pero realmente non aportan demasiado ao xogo xa que non conteñen
+valor semántico ningún.
+
+\section{Obxectos}
+\label{sec:obxectos}
+Os obxectos son o elemento central do xogo. Cada obxecto representa a unha
+entidade no xogo, que pode ser física (como un cervo ou unha mesa) ou un
+concepto (como un estado alterado ou unha idea). Todos os obxectos teñen as
+seguintes características:
+\begin{itemize}
+  \item Correspóndense cunha clase determinada.
+  \item Atópanse nunha localización determinada, que pode ser un escenario, ou o
+  inventario de outro obxecto.
+\end{itemize}
+\par
+Os obxectos dispoñen dos campos definidos pola súa clase, e poden chamar
+métodos da mesma. Estes aspectos explicáronse na sección ''Clases'' na sección
+\ref{sec:clases}.
+
+\subsection{Inventarios}
+\label{subsec:inventarios}
+Os obxectos poden dispoñer duns campos especiais que non existen no caso das
+variables de escenario: os inventarios. Un inventario é unha localización
+vinculada a un determinado obxecto. Os inventarios, como o resto de campos,
+defínense na definición da clase, pero a diferencia do resto de campos non
+poden ser reasignados: o obxecto nace cos seus
+inventarios e só desaparecerán cando desapareza o obxecto.
+\par Exemplo:
+\begin{lstlisting}
+heroe {
+  % inventario
+  % estados
+  
+  personaxe() {
+    new espada() >> inventario
+  }
+}
+\end{lstlisting}
+\par
+No exemplo podemos ver como a clase {\it Heroe} conta con dous
+inventarios: un deles chámase ''inventario'' directamente, e o outro
+''estados''. No construtor da clase (ver \ref{subsubsec:construtor})
+especifícase que no momento de crearse o obxecto, crearase tamén un obxecto de
+clase {\it Espada} e gardarase no inventario.
+\par
+Os inventarios, a pesar de ter este nome, poden ter o valor semántico que desexe
+o DX: poden conter os tesouros que atopara o personaxe, conter unha lista de
+estados alterados, conter as ideas dun NPC, etcétera. 

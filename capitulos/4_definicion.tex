@@ -1,0 +1,346 @@
+\chapter{Definición da linguaxe COE}
+\label{ch:definicion}
+No capítulo anterior abordouse o funcionamento dos escenarios, as clases e os
+obxectos. Neste capítulo mostrarase unha definición formal da linguaxe, tanto na
+definición de clases como no código das accións.
+\par
+Nas descricións sintácticas é preciso ter en conta as seguintes marcas:
+\begin{itemize}
+  \item {\bf \textless elemento \textgreater}: Os elementos marcados deste
+  xeito son elementos obrigatorios, pero non deben ser entendidos como código
+  literal, xa que o contido é unha descrición do elemento. Exemplo: \textless
+  argumento \textgreater.
+  \item {\bf [ elemento ]}: Os elementos marcados deste xeito son opcionais.
+  \item {\bf elemento \ldots}: Os elementos marcados deste xeito pódense repetir
+  varias veces. Exemplo: \textless arg\textgreater {}[\textless arg\textgreater]
+  \ldots.
+\end{itemize}
+
+\section{Tipos de datos}
+No Demiurgo e na linguaxe COE podemos atopar os seguintes tipos de datos:
+\begin{itemize}
+  \item {\bf Número enteiro:} Representa un número sen decimais. Útil para facer
+  cálculos, e para realizar tiradas de dados. Exemplo: {\it 27}. Tamén
+  representa valores lóxicos, sendo 0 o equivalente a dicir ``falso'' e calquera
+  outro valor (normalmente 1) o equivalente a dicir ``verdadeiro''. O seu tipo
+  denótase coa palabra reservada {\it int}.
+  \item {\bf Número con decimais:} Tamén coñecido como número con punto
+  flotante ou simplemente flotante, representa un número non enteiro. Pode
+  empregarse cando se empreguen campos que precisen decimais. Exemplo: {\it
+  3.14}. Debe terse en conta que ao converter números con decimais a números
+  enteiros, perderanse os decimais (non se redondea). O seu tipo
+  denótase coa palabra reservada {\it float}.
+  \item {\bf Cadea de texto:} Calquera fragmento de texto. Útil para mostrar
+  mensaxes aos xogadores, ou para gardar anotacións do DX. Exemplo: {\it ''este
+  é un texto de exemplo''}. O seu tipo
+  denótase coa palabra reservada {\it str}.
+  \item {\bf Escenario:} As variables e campos de escenario non conteñen o
+  escenario como tal, senón unha referencia ao mesmo. Pode ser útil almacenar
+  referencias a escenarios concretos para automatizar o movemento de obxectos
+  entre eles. Aparte diso, non serven para facer operacións. Para obter
+  unha referencia a un escenario concreto, emprégase o carácter {\it @}.
+  Exemplo: {\it @/rexion1/cidade1/taberna}. O seu tipo
+  denótase co carácter {\it @}.
+  \item {\bf Inventario:} Exclusivo dos campos de obxecto, fan referencia ao
+  inventario pertinente. Funcionan de maneira moi similar aos escenarios, salvo
+  polo feito de que non se poden enviar como argumento nin sobreescribir o seu
+  valor con outra referencia. O seu tipo
+  denótase co carácter \%.
+  \item {\bf Obxecto:} Referencia a un obxecto concreto. Permite interactuar co
+  obxecto dende outro escenario, ou gardalo nunha variable cun nome descritivo.
+  É posible obter unha referencia a un obxecto coñecendo a súa ID. Exemplo:
+  \#{\it 1024}. O seu tipo
+  denótase co nome da clase correspondente.
+  \item {\bf Lista:} Lista de datos de calquera dos outros tipos. Exemplo:
+  \{{\it 1, 2, 3, 4}\}. Tamén se poden crear listas baleiras: \{\}. O seu tipo
+  denótase co tipo de elementos que contén e uns corchetes, por exemplo int[].
+  Tamén se poden especificar listas de listas: int[][].
+\end{itemize}
+
+
+\section{Echo}
+\label{sec:echo}
+{\it Echo} é o termo que recibe o feito de emitir un resultado textual. No
+Demiurgo, pódese facer echo de calquera valor que poida ser lido como unha cadea
+de texto (tamén números enteiros e flotantes, e listas). Facer echo no código
+ten unha utilidade: cando o DX estea redactando a narración da acción, poderá
+ver todos os echos, polo que é útil para ver información antes de facer a
+narración completa.
+\par O echo faise co carácter reservado {\bf !}.
+\begin{lstlisting}
+! <valor_a_mostrar>
+\end{lstlisting}
+
+\section{Operacións}
+No Demiurgo atopamos as seguintes operacións:
+\begin{itemize}
+  \item + {\bf Sumar:} Suma dous valores. Se os dous elementos son enteiros, o
+  resultado é un enteiro; se un é flotante e o outro enteiro ou flotante, o
+  resultado é un flotante. Se un dos elementos é unha cadea de texto, a
+  operación no canto de ser unha suma de números convírtese nunha concatenación
+  de texto: ``proba de '' + ``texto'' devolvería ``proba de texto'', e ``valor
+  de '' + 4 devolvería ``valor de 4''. En calquera outro caso, emite un erro.
+  \item - {\bf Restar:} Resta dous valores. Semellante a suma, salvo polo feito
+  de que non serve para concatenar texto. Pódese usar cun só operando para obter
+  o seu negativo.
+  \item ! {\bf Operador lóxico ``non'':} Operador unario, é dicir, que acepta un
+  operando. Devolve 1 se o dato é falso, ou 0 se o dato é verdadeiro. Un número
+  enteiro ou flotante é verdadeiro se é distinto de 0. Unha lista devolverá unha
+  lista de 1s  0s; o resto de tipos devolverá sempre un valor falso.
+  \item == {\bf Igual:} Compara dous datos. Se os datos son loxicamente iguais,
+  devolve un 1. En caso contrario, devolve un 0. Dúas referencias son iguais se
+  referencian ao mesmo obxecto ou escenario.
+  \item != {\bf Non igual:} Devolve 0 se os datos son loxicamente iguais, 0 en
+  caso contrario.
+  \item \textgreater {\bf Maior que:} Devolve 1 se o primeiro valor é maior co
+  segundo, 0 en caso contrario. Funciona con enteiros e flotantes.
+  \item \textless {\bf Menor que:} Devolve 1 se o primeiro valor é menor co
+  segundo, 0 en caso contrario.
+  \item \textgreater= {\bf Maior ou igual que:} Devolve 1 se o primeiro valor é maior ou
+  igual co segundo, 0 en caso contrario.
+  \item \textless= {\bf Menor ou igual que:} Devolve 1 se o primeiro valor é
+  menor ou igual co segundo, 0 en caso contrario.
+  \item \& {\bf Operador lóxico ``e'':} Compara dous elementos lóxicos. Se os
+  dous son verdadeiros, devolve 1, en caso contrario, devolve 0.
+  \item \textbar {\bf Operador lóxico ``ou'':} Compara dous elementos lóxicos.
+  Se polo menos un dos dous é verdadeiro, devolve 1, en caso contrario, devolve
+  0.
+  \item = {\bf Asignar:} Asigna o valor da dereita á variable ou campo da
+  esquerda. Ademais, se se usa en conxunto con outras operacións, devolve o
+  valor asignado. En caso de non ser compatibles o valor e a variable, emite un
+  erro.
+  \item \textgreater\textgreater {\bf Mover:} Move o obxecto da esquerda á
+  localización da dereita.
+  \item ++ {\bf Concatenar:} Concatena dúas listas. Deben ser do mesmo tipo. Se
+  un dos dous operandos non é unha lista pero ten o mesmo tipo que o tipo
+  interno da lista, engádese ao comezo ou ao final (dependendo da orde dos
+  operandos).
+  \item D {\bf Tirada de dados:} Pódese usar como operador unario ou binario. Se
+  se usa cun só operando, fai unha tirada dun dado onde o número de caras é o
+  número especificado polo operando (que debe ser un enteiro) e devolve o
+  resultado. Se se usa con dous operandos, fai X tiradas de Y caras, onde X é o
+  valor do primeiro operando e Y o do segundo, e devolve unha lista de
+  resultados.
+\end{itemize}
+\par A maiores, é posible recoller operacións entre parénteses para darlles
+prioridade.
+\par A prioridade de operadores é a seguinte:
+\par
+Tiradas de dados \textgreater parénteses \textgreater multiplicar ou dividir
+\textgreater sumar ou restar \textgreater comparacións \textgreater operacións
+lóxicas \textgreater asignacións \textgreater movementos
+\par
+Débese ter en conta que as asignacións sempre collerán unha variable do
+lado esquerdo, polo que teñen a máxima prioridade por este lado.
+\par Exemplos de operacións:
+\begin{lstlisting}
+(1+2*(3-4))                // Devolve -1
+3d20 > 10                  // Devolve unha lista de 3 valores 0 ou 1
+#42 >> @/zona1/estancia3   // Move o obxecto de ID 42 ao escenario
+\end{lstlisting}
+\subsection{Operacións con listas}
+As listas permiten realizar practicamente todas as operacións dos elementos que
+conteñen, pero teñen unha característica: o resultado cambia segundo a operación
+sexa con outra lista ou cun elemento dun tipo distinto.
+\subsubsection{Operacións entre elementos e listas}
+Se se realiza unha operación entre un dato que non sexa lista e unha lista, o
+Demiurgo o que devolverá será unha lista de resultados entre o dato e cada
+elemento da lista.
+\par Exemplo:
+\begin{lstlisting}
+3*{1,2,3}
+\end{lstlisting}
+\par Este exemplo devolvería a lista \{3,6,9\}.
+\par Isto funciona tamén con listas de listas:
+\begin{lstlisting}
+5+{{5,5},{10,10}}
+\end{lstlisting}
+\par Este exemplo devolve a lista \{\{10,10\},\{15,15\}\}.
+\subsubsection{Operacións entre listas}
+As operacións entre listas simplemente devolven unha lista cos resultados
+elemento a elemento. Se o tamaño das listas non coincide, devolverá un erro.
+\par Exemplo:
+\begin{lstlisting}
+{2,3,6}+{1,2,5}
+\end{lstlisting}
+\par Este exemplo devolve a lista \{3,5,11\}.
+\par Tamén valen combinacións entre os dous tipos de operación:
+\begin{lstlisting}
+{2,4}*{{10,10},{100,100}}
+\end{lstlisting}
+\par Devolvería a lista \{\{20,20\},\{400,400\}\}.
+
+\section{Variables}
+As variables de escenario créanse especificando o seu tipo e o nome da variable.
+No momento de definir unha variable nova, é posible asignarlle un valor na mesma
+liña:
+\begin{lstlisting}
+<tipo> <nome_variable> [ = <valor> ]
+\end{lstlisting}
+\par Exemplo de variables:
+\begin{lstlisting}
+int a               // define o enteiro 'a'
+str b = "proba"     // define a cadea de texto 'b' co valor "proba"
+elfo c = new elfo() // define a referencia 'c' e garda un novo Elfo 
+\end{lstlisting}
+
+\section{Condicionais}
+É posible marcar fragmentos do código para que sexan executados ou non en base a
+unha condición. Se a condición é verdadeira, o código execútase; en caso
+contrario, non se executa nada. Tamén é posible especificar un código
+alternativo para este último caso.
+\par Definición formal:
+\begin{lstlisting}
+if (<condicion>) {
+  <codigo_condicion_verdadeira>
+}
+[else {
+  <codigo_condicion_falsa>
+}]
+\end{lstlisting}
+\par Se o código só é unha liña, pódese prescindir das chaves.
+\par Exemplo de condicional:
+\begin{lstlisting}
+if(d6 > 3) {  // tira un dado de 6 e o compara co enteiro 3
+  ! "exito"
+}
+else {
+  "fracaso"
+}
+\end{lstlisting}
+
+\section{Bucles}
+É posible especificar bucles no código, é dicir, fragmentos de código que se
+executarán varias veces. O Demiurgo conta co bucle {\bf for}, que permite
+executar un fragmento de código unha vez por cada elemento dentro dunha lista.
+\par Definición formal:
+\begin{lstlisting}
+for (<variable> : <lista>) {
+  <codigo_for>
+}
+\end{lstlisting}
+\par Por cada elemento da lista, farase unha execución do código asignando tal
+elemento á variable especificada. Se no canto dunha lista se lle pasa unha cadea
+de texto, contará como unha lista de caracteres.
+\par Se o código só é unha liña, pódese prescindir das chaves.
+\par Exemplo de bucle:
+\begin{lstlisting}
+for(i : 5d10) {
+  ! "resultado: " + i
+}
+\end{lstlisting}
+
+\section{Funcións integradas}
+É posible empregar funcións predefinidas no propio Demiurgo para realizar
+determinadas operacións complexas. Estas funcións chámanse do seguinte xeito:
+\begin{lstlisting}
+[<saida>] = <nome_funcion> ( <arg> [, <arg> ] ... )
+\end{lstlisting}
+\par As funcións dispoñibles son as seguintes:
+\begin{itemize}
+  \item count({\it lista}): Recibe unha lista e devolve o número de elementos.
+  Se o argumento é unha cadea de texto, devolve o número de caracteres.
+  \item seq({\it inicio, fin}): Recibe dous números enteiros e devolve unha
+  lista formada pola secuencia de enteiros entre ambos números, cun paso de 1. O
+  número de inicio debe ser menor ou igual co de fin.
+  \item reverse({\it lista}): Recibe unha lista e devolve a lista do revés, é
+  dicir, co primeiro elemento en última posición e así sucesivamente. Se o
+  argumento é unha lista de listas, as listas do interior non son modificadas,
+  só a súa orde.
+  \item sub({\it lista, inicio, fin}): Recibe unha lista e dous números
+  enteiros e devolve unha sublista composta polos elementos entre a posición de inicio
+  (inclusive) e a posición de fin (exclusive).
+  \item sum({\it lista}): Recibe unha lista de enteiros e devolve a suma dos
+  seus elementos.
+  \item zeros({\it total}): Recibe un número enteiro e devolve unha lista
+  composta por tantos ceros como especifique o argumento.
+  \item destroy({\it obxecto}): Recibe unha referencia de obxecto, e destrúe ese
+  obxecto. Desaparecerá do mundo de xogo, e con el os seus inventarios e os
+  obxectos que estes conteñan. Esta función non devolve ningún valor.
+\end{itemize}
+\par Exemplo:
+\begin{lstlisting}
+sum( seq(1,10) )          // suma os enteiros do 1 ao 10
+\end{lstlisting}
+
+\section{Obxectos e métodos}
+\subsection{Creación de obxectos}
+Os obxectos créanse coa palabra reservada ``new'' o nome da clase, e se é
+preciso os argumentos do método construtor. A definición é esta:
+\begin{lstlisting}
+new <nome_clase> ( [ <arg> [, <arg> ] ... ] )
+\end{lstlisting} 
+\par Ademais de crear o obxecto, este método devolve unha referencia ao mesmo,
+que pode ser gardada nunha variable mediante unha asignación.
+\par
+Os obxectos no momento de ser creados aparecen no escenario no que se
+estea escribindo o código.
+\par Exemplo de creación de obxecto:
+\begin{lstlisting}
+elfo legolas = new elfo(100, "Legolas o elfo")
+\end{lstlisting}
+
+\subsection{Invocación de métodos}
+Para invocar un método cun obxecto é preciso ter a referencia dese obxecto,
+extraer o seu método co punto ({\bf .}) e engadir os argumentos en caso de ser
+necesarios. Se o método ten argumento de saída, pódese gardar o seu valor nunha
+variable, ou empregarse directamente para facer operacións.
+\begin{lstlisting}
+<referencia_obxecto>.<nome_metodo> ( [ <arg> [, <arg> ] ... ])
+\end{lstlisting} 
+\par Exemplo:
+\begin{lstlisting}
+legolas.bendicir(outroelfo)
+\end{lstlisting}
+
+\section{Definición de clases}
+No momento de crear a clase, especifícanse os atributos e métodos que terán os
+obxectos creados a partir dela. A definición dunha clase é a seguinte:
+\begin{lstlisting}
+<nome_clase> {
+  <atributos>
+  <metodos>
+}
+\end{lstlisting}
+\par Os atributos defínense como as variables de escenario. Os métodos defínense
+da seguinte forma:
+\begin{lstlisting}
+[<tipo> <arg_saida> =]
+  <nome_metodo>([ <tipo> <arg>[, <tipo> <arg>]...])
+{
+  <codigo_metodo>
+}
+\end{lstlisting}
+\par Se no código do método se asigna un valor ao argumento de saída, este
+devolverase cando o método sexa chamado.
+\par Exemplo de clase:
+\begin{lstlisting}
+anano : criatura {
+  int forza = 3
+  int axilidade = 1
+  int intelixencia = 1
+  int vida = 30
+  str nome
+  
+  anano(str nome) {
+    this.nome = nome
+  }
+  
+  int dano = golpear(criatura outro) {
+    dano = sum((forza)d6)
+    criatura.vida = criatura.vida - dano
+  }
+}
+\end{lstlisting}
+
+\section{Usuarios}
+Os usuarios non poden ser manexados como valores por ningún tipo de dato; pero
+hai unha operación especial ({\bf -\textgreater}) que permite asignarlle un
+obxecto a un usuario coñecendo o seu nome.
+\begin{lstlisting}
+$<nome_usuario> -> <referencia_obxecto>
+\end{lstlisting}
+\par Exemplo:
+\begin{lstlisting}
+$gamer -> #30
+\end{lstlisting}

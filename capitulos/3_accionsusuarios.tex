@@ -1,0 +1,36 @@
+\chapter{Accións e usuarios}
+A acción do xogo desenvólvese mediante accións, que é o que comunica aos
+usuarios co mundo. Os usuarios escriben o que queren facer cos seus personaxes,
+e é labor do DX executar o código pertinente e mostrarlles unha narración
+por escrito que describa o sucedido.
+\section{Decisións}
+Un xogador nun momento dado pode escribir o que desexa que o seu personaxe faga.
+Isto no Demiurgo coñécese como {\it decisión}. Este texto non ten ningún tipo de
+efecto no sistema, simplemente é mostrado ao DX cando abre o escenario no que se
+atopa o obxecto do xogador.
+
+\section{Accións}
+Por acción enténdese todo o sucedido entre dúas narracións, é dicir, todo o
+código executado e as decisións correspondentes que o provocaron. O DX pode
+executar todo o código que precise, e facer varias execucións diferenciadas,
+antes de engadir unha narración e concluír por tanto a acción.
+\subsection{Testemuñas}
+As testemuñas son os xogadores que se atopan no escenario no momento de rematar
+a acción. Estas testemuñas recóllense xusto antes de executar o último código,
+o que iniciará o proceso de narración; polo que se incluirán entre elas os
+personaxes cuxos obxectos cambiaran de escenario no último momento.
+
+\section{Narracións}
+A narración é o resultado textual da acción. O DX redáctao baseándose no estado
+do escenario e nos {\it echos} (ver sección \ref{sec:echo}) producidos. Os
+xogadores que sexan testemuñas poderán ver este resultado textual.
+\subsection{Fragmentos ocultos}
+O DX poderá marcar fragmentos da narración como ocultos empregando as etiquetas
+[o][/o]. Por exemplo:
+\begin{lstlisting}
+Este texto e visible para todos.
+[o=gamer]Este texto so e visible para o xogador 'gamer'.[/o]
+[o=gamer user]
+Este texto e visible para 'gamer' e 'user'.
+[/o]
+\end{lstlisting}
